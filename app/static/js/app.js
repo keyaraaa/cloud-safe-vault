@@ -214,7 +214,7 @@ function renderTokensList() {
         card.addEventListener("mouseleave", () => card.style.borderColor = "var(--border,#333)");
 
         const expired = new Date(entry.expires_at) < new Date();
-        const label = entry.label || ("Запись #" + (idx + 1));
+        const label = entry.label || (currentLang() === "ru" ? "Запись #" : "Record #") + (idx + 1);
         const date = new Date(entry.created_at).toLocaleDateString();
 
         const fillLabel = currentLang() === "ru" ? "Подставить" : "Fill in";
