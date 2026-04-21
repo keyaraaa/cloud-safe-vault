@@ -60,7 +60,11 @@ jobs:
         run: |
           docker run -d --name dsp-smoke -p 5000:5000 \
             -e SECRET_KEY=ci -e FLASK_ENV=production dsp:ci
-          sleep 5
+          for i in $(seq 1 15); do
+            curl -s http://localhost:5000/healthz && break
+            echo "Waiting... ($i)"
+            sleep 2
+          done
           curl --fail http://localhost:5000/healthz
           docker logs dsp-smoke
           docker rm -f dsp-smoke
