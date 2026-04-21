@@ -225,7 +225,7 @@ function renderTokensList() {
                     <div style="font-size:.75em;color:#666;margin-top:.25rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">ID: ${entry.token_id}</div>
                 </div>
                 <div style="display:flex;gap:.5rem;flex-shrink:0;">
-                    <button class="btn btn-ghost btn-small" data-idx="${idx}" data-action="fill">Подставить</button>
+                    <button class="btn btn-ghost btn-small" data-idx="${idx}" data-action="fill">${t("enc.saved.fill") || "Подставить"}</button>
                     <button class="btn btn-ghost btn-small" data-idx="${idx}" data-action="delete" style="color:var(--accent-danger,#f87171);">✕</button>
                 </div>
             </div>
