@@ -175,9 +175,89 @@ function initPasswordsPage() {
 // Страница: ШИФРОВАНИЕ
 // ================================================================
 
+// ================================================================
+// Хранение токенов в localStorage
+// ================================================================
+
+const STORAGE_KEY = "vault_tokens";
+
+function loadTokens() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+    catch { return []; }
+}
+
+function saveTokens(tokens) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));
+}
+
+function addToken(entry) {
+    const tokens = loadTokens();
+    tokens.unshift(entry); // новые — вверху
+    saveTokens(tokens);
+}
+
+function renderTokensList() {
+    const section = $("my-tokens-section");
+    const list = $("tokens-list");
+    if (!section || !list) return;
+
+    const tokens = loadTokens();
+    if (tokens.length === 0) { section.hidden = true; return; }
+
+    section.hidden = false;
+    list.innerHTML = "";
+
+    tokens.forEach((entry, idx) => {
+        const card = document.createElement("div");
+        card.style.cssText = "background:var(--bg-card,#1e1e2e);border:1px solid var(--border,#333);border-radius:8px;padding:1rem;cursor:pointer;transition:border-color .2s;";
+        card.addEventListener("mouseenter", () => card.style.borderColor = "var(--accent,#7c6aed)");
+        card.addEventListener("mouseleave", () => card.style.borderColor = "var(--border,#333)");
+
+        const expired = new Date(entry.expires_at) < new Date();
+        const label = entry.label || ("Запись #" + (idx + 1));
+        const date = new Date(entry.created_at).toLocaleDateString();
+
+        card.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;margin-bottom:0.25rem;">${label} ${expired ? '<span style="color:var(--accent-danger,#f87171);font-size:.8em;">(истёк)</span>' : ''}</div>
+                    <div style="font-size:.8em;color:#888;">Зашифровано: ${date} · до ${new Date(entry.expires_at).toLocaleDateString()}</div>
+                    <div style="font-size:.75em;color:#666;margin-top:.25rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">ID: ${entry.token_id}</div>
+                </div>
+                <div style="display:flex;gap:.5rem;flex-shrink:0;">
+                    <button class="btn btn-ghost btn-small" data-idx="${idx}" data-action="fill">Подставить</button>
+                    <button class="btn btn-ghost btn-small" data-idx="${idx}" data-action="delete" style="color:var(--accent-danger,#f87171);">✕</button>
+                </div>
+            </div>
+        `;
+
+        card.addEventListener("click", (e) => {
+            const btn = e.target.closest("[data-action]");
+            if (!btn) return;
+            const i = Number(btn.dataset.idx);
+            const action = btn.dataset.action;
+            if (action === "fill") {
+                const tokens = loadTokens();
+                $("dec-token").value = tokens[i].token_id;
+                $("dec-key").value = tokens[i].key;
+                $("dec-token").scrollIntoView({ behavior: "smooth", block: "center" });
+            } else if (action === "delete") {
+                const tokens = loadTokens();
+                tokens.splice(i, 1);
+                saveTokens(tokens);
+                renderTokensList();
+            }
+        });
+
+        list.appendChild(card);
+    });
+}
+
 function initEncryptionPage() {
     const encBtn = $("enc-run");
     if (!encBtn) return;
+
+    renderTokensList();
 
     encBtn.addEventListener("click", async () => {
         const text = $("enc-text").value;
@@ -188,6 +268,16 @@ function initEncryptionPage() {
             $("enc-key").textContent = r.key;
             $("enc-expires").textContent = r.expires_at;
             $("enc-result").hidden = false;
+
+            // Сохраняем в localStorage
+            addToken({
+                token_id: r.token_id,
+                key: r.key,
+                expires_at: r.expires_at,
+                label: $("enc-label").value.trim() || "",
+                created_at: new Date().toISOString(),
+            });
+            renderTokensList();
         } catch (e) {
             alert("Error: " + e.message);
         }
@@ -209,6 +299,16 @@ function initEncryptionPage() {
             $("dec-result").hidden = false;
         }
     });
+
+    const clearBtn = $("clear-tokens");
+    if (clearBtn) {
+        clearBtn.addEventListener("click", () => {
+            if (confirm("Удалить все сохранённые записи?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                renderTokensList();
+            }
+        });
+    }
 }
 
 // ================================================================

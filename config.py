@@ -18,7 +18,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # TTL токенов шифрования (после истечения — токен удаляется).
-    TOKEN_TTL = timedelta(hours=int(os.environ.get("TOKEN_TTL_HOURS", 24)))
+    TOKEN_TTL = timedelta(hours=int(os.environ.get("TOKEN_TTL_HOURS", 720)))  # 30 дней по умолчанию
 
     # HIBP API — никаких ключей не требуется для k-anonymity endpoint.
     HIBP_API_URL = "https://api.pwnedpasswords.com/range/"

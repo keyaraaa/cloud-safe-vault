@@ -4,20 +4,24 @@
 {% block content %}
 <header class="page-header">
     <h1 data-i18n="enc.heading">Шифрование текста</h1>
-    <p class="lead" data-i18n="enc.lead">Для расшифровки нужны одновременно token_id и секретный ключ.</p>
+    <p class="lead" data-i18n="enc.lead">Зашифруй текст — token и ключ сохраняются в браузере, можно расшифровать в любой момент.</p>
 </header>
 
 <div class="tool-grid">
     <section class="tool-card" aria-labelledby="enc-title">
         <h2 id="enc-title" data-i18n="enc.box.title">Зашифровать</h2>
         <div class="field">
+            <label for="enc-label" data-i18n="enc.box.labelName">Название (необязательно):</label>
+            <input type="text" id="enc-label" data-i18n-placeholder="enc.box.labelPh" placeholder="например: пароль от почты">
+        </div>
+        <div class="field">
             <label for="enc-text" data-i18n="enc.box.label">Сообщение:</label>
-            <textarea id="enc-text" rows="6" data-i18n-placeholder="enc.box.ph" placeholder="Введите текст для шифрования..."></textarea>
+            <textarea id="enc-text" rows="5" data-i18n-placeholder="enc.box.ph" placeholder="Введите текст для шифрования..."></textarea>
         </div>
         <button class="btn btn-primary" id="enc-run" data-i18n="enc.box.run">Зашифровать</button>
 
         <div class="result" id="enc-result" hidden>
-            <p class="warning" data-i18n="enc.box.warn">⚠ Сохраните оба значения. Ключ показывается один раз.</p>
+            <p class="success">✅ <span data-i18n="enc.box.saved">Сохранено в браузере — найдёшь ниже в «Мои записи»</span></p>
             <div class="field">
                 <label data-i18n="enc.box.token">Token ID:</label>
                 <div class="copy-row">
@@ -32,7 +36,7 @@
                     <button class="btn btn-ghost btn-small" data-copy="enc-key" data-i18n="enc.box.copy">Копировать</button>
                 </div>
             </div>
-            <p class="muted small"><span data-i18n="enc.box.expires">Срок действия:</span> <span id="enc-expires">—</span></p>
+            <p class="muted small"><span data-i18n="enc.box.expires">Действует 30 дней до:</span> <span id="enc-expires">—</span></p>
         </div>
     </section>
 
@@ -54,4 +58,14 @@
         </div>
     </section>
 </div>
+
+<!-- Мои записи -->
+<section class="tool-card" id="my-tokens-section" style="margin-top:2rem;" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h2 data-i18n="enc.saved.title">Мои записи</h2>
+        <button class="btn btn-ghost btn-small" id="clear-tokens" data-i18n="enc.saved.clear">Очистить всё</button>
+    </div>
+    <p class="muted small" data-i18n="enc.saved.hint">Хранятся в этом браузере. Кликни на запись — данные подставятся в форму расшифровки.</p>
+    <div id="tokens-list" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.75rem;"></div>
+</section>
 {% endblock %}
