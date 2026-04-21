@@ -1,7 +1,3 @@
-"""
-Конфигурация Flask-приложения.
-Все секреты — из переменных окружения. Никаких хардкодов.
-"""
 import os
 from datetime import timedelta
 from dotenv import load_dotenv

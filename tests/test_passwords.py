@@ -1,5 +1,3 @@
-"""Тесты модуля паролей (без HIBP — оффлайн-части)."""
-
 
 def test_generate_basic(client):
     r = client.post("/api/passwords/generate", json={"length": 20})

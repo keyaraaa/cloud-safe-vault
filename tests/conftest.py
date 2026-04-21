@@ -1,7 +1,3 @@
-"""
-Shared pytest fixtures.
-Для тестов используется in-memory SQLite (быстро, без Postgres).
-"""
 import os
 import pytest
 

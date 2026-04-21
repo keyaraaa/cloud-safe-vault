@@ -1,5 +1,3 @@
-# Prometheus scrape config для Digital Security Platform.
-# Flask-приложение отдаёт метрики через prometheus-flask-exporter на /metrics.
 
 global:
   scrape_interval: 15s

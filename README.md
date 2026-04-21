@@ -1,112 +1,83 @@
-# Intelligent Cloud — Digital Security Platform
+# cloud-safe-vault
 
-Финальный проект курса **«Intelligent Cloud & Data Processing»** на базе Huawei Technologies.
+A web app I built for a cloud & data processing course. It's basically a collection of security tools I actually wanted to use myself — instead of opening five different sketchy websites every time I need to generate a password or check if it got leaked.
 
-Веб-приложение с четырьмя инструментами цифровой безопасности:
+## What's inside
 
-1. **Генератор паролей** — CSPRNG (`secrets`), любые алфавиты, исключения, энтропия в битах.
-2. **Оценка силы** — скор 0–4 + оценка времени перебора (zxcvbn).
-3. **Проверка утечек** — HIBP k-anonymity: наружу уходит только префикс SHA-1.
-4. **Шифрование текста** — Fernet (AES-128-CBC + HMAC-SHA256) с одноразовым ключом.
+- **Password generator** — uses `secrets` module (CSPRNG), configurable length, character sets, entropy display
+- **Strength checker** — zxcvbn-based scoring with estimated crack time
+- **Breach lookup** — checks Have I Been Pwned using k-anonymity, only the first 5 chars of the SHA-1 hash ever leave your browser
+- **Text encryption** — Fernet (AES-256 + HMAC), generates a one-time key, stores only the ciphertext, auto-expires in 24h
 
-## Стек
+## Stack
 
-| Слой | Технологии |
+| Layer | Tech |
 |---|---|
-| Frontend | HTML5, CSS3 (dark theme), vanilla JavaScript |
-| Backend | Python 3.11, Flask, cryptography, SQLAlchemy |
-| БД | PostgreSQL 16 (в Docker) |
-| Контейнеры | Docker (multi-stage), docker-compose |
-| CI/CD | GitHub Actions (lint + pytest + docker build + Render deploy) |
-| Оркестрация | Kubernetes (deployment / service / ingress) |
-| Мониторинг | prometheus-flask-exporter + Prometheus + Grafana |
-| HTTPS | Let's Encrypt через cert-manager / платформу хостинга |
-| Hosting | Render (free tier, нативный Docker) |
+| Frontend | HTML5, CSS3 (dark theme), vanilla JS |
+| Backend | Python 3.11, Flask, SQLAlchemy |
+| DB | PostgreSQL 16 |
+| Containers | Docker (multi-stage), docker-compose |
+| CI/CD | GitHub Actions — lint, pytest, docker build, auto-deploy to Render |
+| Orchestration | Kubernetes manifests (deployment / service / ingress) |
+| Monitoring | prometheus-flask-exporter + Prometheus + Grafana |
+| Hosting | Render (free tier) |
 
-## Быстрый старт (Docker Compose)
+## Run locally
 
+**With Docker (recommended):**
 ```bash
 cp .env.example .env
-# отредактируйте .env — пароли БД, SECRET_KEY
+# edit .env — set DB password and SECRET_KEY
 docker compose up --build
 ```
+Open http://localhost:5000
 
-Откройте http://localhost:5000.
-
-## Локальный запуск без Docker
-
+**Without Docker:**
 ```bash
 python -m venv .venv
-source .venv/bin/activate              # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 python run.py
 ```
+Uses SQLite by default. Override `DATABASE_URL` in `.env` for Postgres.
 
-По умолчанию используется SQLite (`local.db`). Для PostgreSQL переопределите `DATABASE_URL` в `.env`.
-
-## Тесты
+## Tests
 
 ```bash
 pytest -q
 ```
 
-Покрыты: crypto (roundtrip, неверный ключ, TTL), passwords (генерация, валидация, сила).
+Covers crypto (roundtrip, bad key, TTL expiry) and passwords (generation, validation, strength scoring).
 
-## Структура репозитория
+## API
 
-```
-.
-├── app/                     # Flask application
-│   ├── __init__.py          # App factory
-│   ├── passwords/           # Blueprint: генератор, сила, утечки
-│   ├── crypto/              # Blueprint: encrypt / decrypt + модель БД
-│   ├── templates/           # Jinja2 (base.html + 4 страницы)
-│   └── static/              # CSS / JS
-├── tests/                   # pytest
-├── k8s/                     # Kubernetes manifests
-├── monitoring/              # prometheus.yml, Grafana dashboard
-├── .github/workflows/       # CI + deploy
-├── docs/                    # Отчёт + диаграмма архитектуры
-├── Dockerfile               # Multi-stage (builder + runtime)
-├── docker-compose.yml       # web + db
-├── .env.example
-├── requirements.txt
-├── config.py
-├── run.py
-└── README.md
-```
-
-## REST API (кратко)
-
-| Метод | Путь | Запрос | Ответ |
+| Method | Path | Body | Response |
 |---|---|---|---|
-| POST | `/api/passwords/generate` | `{length, use_lower, use_upper, use_digits, use_symbols, exclude_similar, exclude_chars}` | `{password, entropy_bits, pool_size, length}` |
-| POST | `/api/passwords/strength` | `{password}` | `{score, crack_times, feedback, entropy_bits, length}` |
-| POST | `/api/passwords/breach` | `{password}` | `{breached, count, prefix_sent}` |
+| POST | `/api/passwords/generate` | `{length, use_lower, use_upper, use_digits, use_symbols, exclude_chars}` | `{password, entropy_bits}` |
+| POST | `/api/passwords/strength` | `{password}` | `{score, crack_times, feedback}` |
+| POST | `/api/passwords/breach` | `{password}` | `{breached, count}` |
 | POST | `/api/crypto/encrypt` | `{text}` | `{token_id, key, expires_at}` |
 | POST | `/api/crypto/decrypt` | `{token_id, key}` | `{plaintext}` |
-| GET  | `/healthz` | — | `{status: "ok"}` |
-| GET  | `/metrics` | — | Prometheus exposition format |
+| GET | `/healthz` | — | `{status: "ok"}` |
 
-## Деплой на Render
+## Security notes
 
-1. Создать Web Service → подключить GitHub-репозиторий.
-2. Environment: `Docker`. Dockerfile — в корне.
-3. Environment Variables: `SECRET_KEY`, `DATABASE_URL`, `TOKEN_TTL_HOURS`.
-4. Добавить PostgreSQL add-on (или внешнюю Postgres).
-5. Render выдаёт HTTPS + автоматический редирект.
-6. Для CI-деплоя: Deploy Hook → сохранить в GitHub Secrets как `RENDER_DEPLOY_HOOK_URL`.
+- Passwords are never stored or logged anywhere
+- HIBP k-anonymity — the actual password never leaves the server
+- Encryption key is shown once and never saved — if you lose it, the text is gone
+- No plaintext in the DB, only ciphertext + expiry timestamp
+- `.env` is gitignored, secrets are set via environment variables in prod
 
-## Безопасность
+## Repo structure
 
-- Пароли генерируются через `secrets.SystemRandom`.
-- HIBP: k-anonymity — пароль не покидает сервер.
-- Шифрование: Fernet (AES-256 equiv.), ключ одноразовый.
-- В БД — только `ciphertext`, `expires_at`. Никакого plaintext.
-- Секретов в репозитории нет: `.env` в `.gitignore`, только `.env.example`.
-- В production — HTTPS, непривилегированный пользователь в Docker, readOnlyRootFilesystem в k8s (опционально).
-
-## Команда
-
-Take и напарник. Проект объединяет два начальных сайта в один итоговый деливерабл.
+```
+app/               Flask app (passwords + crypto blueprints, templates, static)
+tests/             pytest
+k8s/               Kubernetes manifests
+monitoring/        Prometheus config, Grafana dashboard
+.github/workflows/ CI pipeline + Render deploy hook
+Dockerfile         Multi-stage build
+docker-compose.yml Local dev with Postgres
+render.yaml        Render deployment config
+```
