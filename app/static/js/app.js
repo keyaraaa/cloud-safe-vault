@@ -217,15 +217,19 @@ function renderTokensList() {
         const label = entry.label || ("Запись #" + (idx + 1));
         const date = new Date(entry.created_at).toLocaleDateString();
 
+        const fillLabel = currentLang() === "ru" ? "Подставить" : "Fill in";
+        const expiredLabel = currentLang() === "ru" ? "(истёк)" : "(expired)";
+        const createdLabel = currentLang() === "ru" ? "Создано:" : "Created:";
+
         card.innerHTML = `
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
                 <div style="flex:1;min-width:0;">
-                    <div style="font-weight:600;margin-bottom:0.25rem;">${label} ${expired ? '<span style="color:var(--accent-danger,#f87171);font-size:.8em;">(истёк)</span>' : ''}</div>
-                    <div style="font-size:.8em;color:#888;">Зашифровано: ${date} · до ${new Date(entry.expires_at).toLocaleDateString()}</div>
+                    <div style="font-weight:600;margin-bottom:0.25rem;">${label} ${expired ? `<span style="color:var(--accent-danger,#f87171);font-size:.8em;">${expiredLabel}</span>` : ''}</div>
+                    <div style="font-size:.8em;color:#888;">${createdLabel} ${date}</div>
                     <div style="font-size:.75em;color:#666;margin-top:.25rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">ID: ${entry.token_id}</div>
                 </div>
                 <div style="display:flex;gap:.5rem;flex-shrink:0;">
-                    <button class="btn btn-ghost btn-small" data-idx="${idx}" data-action="fill">${t("enc.saved.fill") || "Подставить"}</button>
+                    <button class="btn btn-ghost btn-small" data-idx="${idx}" data-action="fill">${fillLabel}</button>
                     <button class="btn btn-ghost btn-small" data-idx="${idx}" data-action="delete" style="color:var(--accent-danger,#f87171);">✕</button>
                 </div>
             </div>
