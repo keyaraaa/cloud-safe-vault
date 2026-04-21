@@ -46,6 +46,9 @@ ENV PYTHONUNBUFFERED=1 \
 # Копируем исходники приложения.
 COPY --chown=app:app . /app
 
+# Создаём папку для SQLite и даём права пользователю app.
+RUN mkdir -p /app/instance && chown app:app /app/instance
+
 USER app
 
 EXPOSE 5000
