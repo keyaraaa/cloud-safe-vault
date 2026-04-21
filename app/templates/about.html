@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block page_key %}about{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <h1 data-i18n="about.heading">О Vault</h1>
+    <p class="lead" data-i18n="about.lead">Пет-проект, который вырос из лабы по контейнерам и облакам — и которым я пользуюсь сам.</p>
+</header>
+
+<section class="prose">
+    <h2 data-i18n="about.what.h">Что делает</h2>
+    <p data-i18n="about.what.p">Четыре вещи, обычно разбросанные по разным сайтам сомнительного качества.</p>
+
+    <h2 data-i18n="about.why.h">Зачем я это делал</h2>
+    <ul>
+        <li data-i18n="about.why.1">Надоело гуглить «генератор паролей».</li>
+        <li data-i18n="about.why.2">Хотелось на живом примере разобраться с Fernet и HIBP k-anonymity.</li>
+        <li data-i18n="about.why.3">Нужно было что-то сдавать за лабу, но чтобы результат был полезный.</li>
+    </ul>
+
+    <h2 data-i18n="about.stack.h">Под капотом</h2>
+    <ul>
+        <li data-i18n="about.stack.1">Python / Flask + ванильный JS.</li>
+        <li data-i18n="about.stack.2">PostgreSQL в Docker, только зашифрованные токены, TTL 24 часа.</li>
+        <li data-i18n="about.stack.3">docker-compose поднимает web + db одной командой.</li>
+        <li data-i18n="about.stack.4">Render + GitHub Actions = автодеплой на каждый push в main.</li>
+        <li data-i18n="about.stack.5">Метрики через prometheus-flask-exporter.</li>
+        <li data-i18n="about.stack.6">Kubernetes-манифесты в репо, готовы к применению.</li>
+    </ul>
+
+    <h2 data-i18n="about.nodo.h">Чего здесь нет</h2>
+    <ul>
+        <li data-i18n="about.nodo.1">Регистрации и аккаунтов.</li>
+        <li data-i18n="about.nodo.2">Логов с паролями и plaintext.</li>
+        <li data-i18n="about.nodo.3">Небезопасных алгоритмов.</li>
+        <li data-i18n="about.nodo.4">Рекламы, трекеров, cookie-banner'ов.</li>
+    </ul>
+
+    <div class="stats-block" id="stats-block" hidden>
+        <h2 data-i18n="about.stats.h">Немного статистики</h2>
+        <div class="stats-row">
+            <div class="stat">
+                <strong id="stat-tokens">—</strong>
+                <span data-i18n="about.stats.tokens">токенов зашифровано</span>
+            </div>
+            <div class="stat-sub" id="stat-since"></div>
+        </div>
+    </div>
+
+</section>
+{% endblock %}

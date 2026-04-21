@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block page_key %}home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <span class="pill" data-i18n="home.pill">пет-проект</span>
+        <h1 data-i18n="home.title">Пароли и шифрование. В одном месте.</h1>
+        <p class="hero-subtitle" data-i18n="home.subtitle">Без регистрации и без того, чтобы ваши пароли светились на чужих серверах.</p>
+        <p class="lead" data-i18n="home.lead">Сделал для себя, потому что надоело искать по разным сайтам.</p>
+        <div class="cta-row">
+            <a class="btn btn-primary" href="{{ url_for('passwords_page') }}" data-i18n="home.cta.primary">Открыть генератор</a>
+            <a class="btn btn-ghost" href="{{ url_for('encryption_page') }}" data-i18n="home.cta.ghost">Зашифровать текст</a>
+        </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+        <div class="orb orb-a"></div>
+        <div class="orb orb-b"></div>
+        <div class="grid-lines"></div>
+    </div>
+</section>
+
+<section class="features">
+    <h2 data-i18n="home.features.heading">Что внутри</h2>
+    <div class="feature-grid">
+        <article class="feature-card">
+            <div class="feature-icon">🔑</div>
+            <h3 data-i18n="home.f1.title">Генератор паролей</h3>
+            <p data-i18n="home.f1.desc">Длина 6–64, классы символов, исключения.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3 data-i18n="home.f2.title">Memorable passphrase</h3>
+            <p data-i18n="home.f2.desc">Слова + цифры. Запоминается лучше.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3 data-i18n="home.f3.title">Проверка силы</h3>
+            <p data-i18n="home.f3.desc">Скор 0–4 и время подбора.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon">🛡</div>
+            <h3 data-i18n="home.f4.title">Проверка утечек</h3>
+            <p data-i18n="home.f4.desc">Через HIBP k-anonymity.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3 data-i18n="home.f5.title">Шифрование текста</h3>
+            <p data-i18n="home.f5.desc">AES-256, одноразовый ключ.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon">🧹</div>
+            <h3 data-i18n="home.f6.title">Ничего не хранится</h3>
+            <p data-i18n="home.f6.desc">Никакого plaintext. TTL 24 часа.</p>
+        </article>
+    </div>
+</section>
+
+<section class="why">
+    <h2 data-i18n="home.why.heading">Почему это не просто ещё один сайт</h2>
+    <ul class="why-list">
+        <li data-i18n="home.why.1">Пароль для проверки утечек никогда не покидает сервер.</li>
+        <li data-i18n="home.why.2">Ключ шифрования генерируется на сервере и тут же забывается.</li>
+        <li data-i18n="home.why.3">Код открыт, Dockerfile лежит в репозитории.</li>
+    </ul>
+</section>
+{% endblock %}

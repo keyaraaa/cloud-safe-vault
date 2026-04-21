@@ -1,0 +1,59 @@
+# docker-compose.yml — локальный запуск web + db.
+# Поднять всё: `docker compose up --build`
+# Остановить:  `docker compose down`
+
+services:
+  web:
+    build: .
+    container_name: dsp-web
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      FLASK_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # На macOS порт 5000 занят AirPlay Receiver, поэтому пробрасываем на 5001.
+      # Внутри контейнера сервис всё равно слушает 5000.
+      - "5001:5000"
+    networks:
+      - dsp-net
+
+  db:
+    image: postgres:16-alpine
+    container_name: dsp-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - dsp-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dsp-net
+
+  # Опционально: Prometheus для мониторинга.
+  # Раскомментируй, если хочешь локально смотреть метрики.
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: dsp-prom
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  #   ports:
+  #     - "9090:9090"
+  #   networks:
+  #     - dsp-net
+
+volumes:
+  dsp-db-data:
+
+networks:
+  dsp-net:
+    driver: bridge
